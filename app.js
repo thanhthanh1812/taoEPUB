@@ -781,3 +781,82 @@ p {
         alert('Đã xảy ra lỗi trong quá trình tạo file EPUB: ' + err.message);
     }
 });
+
+/* ----------------------------------------------------
+   6. PASSWORD GATE AUTHENTICATION SYSTEM
+   ---------------------------------------------------- */
+const gatePasswordInput = document.getElementById('gate-password');
+const togglePwBtn = document.getElementById('toggle-pw-btn');
+const eyeIconShow = document.getElementById('eye-icon-show');
+const eyeIconHide = document.getElementById('eye-icon-hide');
+
+const passwordGate = document.getElementById('password-gate');
+const appContainer = document.getElementById('app-container');
+const btnVerifyPw = document.getElementById('btn-verify-pw');
+const passwordError = document.getElementById('password-error');
+const passwordCard = document.getElementById('password-card');
+
+const CORRECT_PASSWORD = 'hh$&Ffu!gzB4ut+svPRY';
+
+// Reveal/Hide password toggle
+if (togglePwBtn && gatePasswordInput) {
+    togglePwBtn.addEventListener('click', () => {
+        if (gatePasswordInput.type === 'password') {
+            gatePasswordInput.type = 'text';
+            eyeIconShow.style.display = 'none';
+            eyeIconHide.style.display = 'block';
+        } else {
+            gatePasswordInput.type = 'password';
+            eyeIconShow.style.display = 'block';
+            eyeIconHide.style.display = 'none';
+        }
+    });
+}
+
+// Verification function
+function verifyPassword() {
+    if (!gatePasswordInput) return;
+    const entered = gatePasswordInput.value;
+    if (entered === CORRECT_PASSWORD) {
+        // Correct Password
+        sessionStorage.setItem('epub_forge_auth', 'true');
+        passwordGate.style.display = 'none';
+        appContainer.style.display = 'flex';
+        passwordError.style.display = 'none';
+    } else {
+        // Wrong Password
+        passwordError.style.display = 'block';
+        
+        // Shake feedback animation
+        passwordCard.classList.remove('shake-animation');
+        void passwordCard.offsetWidth; // force redraw/reflow to restart animation
+        passwordCard.classList.add('shake-animation');
+        
+        gatePasswordInput.focus();
+    }
+}
+
+// Bind Verify actions
+if (btnVerifyPw) {
+    btnVerifyPw.addEventListener('click', verifyPassword);
+}
+
+if (gatePasswordInput) {
+    gatePasswordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            verifyPassword();
+        }
+    });
+}
+
+// Immediate load autologin check
+(function initAuth() {
+    if (sessionStorage.getItem('epub_forge_auth') === 'true') {
+        if (passwordGate) passwordGate.style.display = 'none';
+        if (appContainer) appContainer.style.display = 'flex';
+    } else {
+        if (passwordGate) passwordGate.style.display = 'flex';
+        if (appContainer) appContainer.style.display = 'none';
+        if (gatePasswordInput) gatePasswordInput.focus();
+    }
+})();
