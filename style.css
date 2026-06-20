@@ -871,3 +871,21 @@ textarea {
     10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
     20%, 40%, 60%, 80% { transform: translateX(6px); }
 }
+
+/* Disabled state for EPUB generation button */
+.btn-generate-epub:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    pointer-events: none;
+    box-shadow: none;
+}
+
+.spinner-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+

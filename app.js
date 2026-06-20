@@ -294,6 +294,9 @@ function generateCanvasCover(title, author) {
    4. UTILITY HELPERS FOR EPUB PACKAGING
    ---------------------------------------------------- */
 
+// Helper for yielding thread control to let browser repaint
+const sleep = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
+
 // Convert data URL to Blob directly without network fetch
 function dataURLtoBlob(dataurl) {
     const parts = dataurl.split(',');
@@ -392,12 +395,25 @@ btnGenerate.addEventListener('click', async () => {
         bookContentInput.focus();
         return;
     }
+
+    // Disable button to prevent spamming
+    btnGenerate.disabled = true;
+    const originalBtnHtml = btnGenerate.innerHTML;
+    btnGenerate.innerHTML = `
+        <svg class="btn-icon spinner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M22 12a10 10 0 0 1-10 10"></path>
+        </svg>
+        <span>Đang tạo EPUB...</span>
+    `;
     
     try {
         showProgress('Đang xử lý nội dung...');
+        await sleep(100); // Allow modal overlay to paint
         
         // 1. Parse content
         updateProgressState(10, 'Đang phân tích các chương...');
+        await sleep(50); // Yield to render progress
         const parsed = parseContent(rawContent);
         const preface = parsed.preface;
         const chapters = parsed.chapters;
@@ -415,6 +431,7 @@ btnGenerate.addEventListener('click', async () => {
         
         // 2. Prepare Cover image
         updateProgressState(25, 'Đang xử lý bìa truyện...');
+        await sleep(50); // Yield to render progress
         let coverBlob = null;
         
         let coverDataUrlToUse = uploadedCoverDataUrl;
@@ -426,6 +443,7 @@ btnGenerate.addEventListener('click', async () => {
         
         // 3. Initialize JSZip
         updateProgressState(40, 'Khởi tạo file nén EPUB...');
+        await sleep(50); // Yield to render progress
         const zip = new JSZip();
         const uuid = generateUUID();
         const nowStr = new Date().toISOString().split('.')[0] + 'Z';
@@ -443,6 +461,7 @@ btnGenerate.addEventListener('click', async () => {
         
         // OEBPS/Styles/style.css
         updateProgressState(50, 'Thêm các stylesheet...');
+        await sleep(50); // Yield to render progress
         zip.file("OEBPS/Styles/style.css", `@charset "utf-8";
 body {
     font-family: "Lora", "Georgia", "Times New Roman", serif;
@@ -502,6 +521,7 @@ p {
         
         // 4. Create text pages inside OEBPS/Text
         updateProgressState(60, 'Tạo các trang chương...');
+        await sleep(50); // Yield to render progress
         
         // OEBPS/Text/cover.xhtml
         zip.file("OEBPS/Text/cover.xhtml", `<?xml version="1.0" encoding="utf-8"?>
@@ -585,6 +605,7 @@ p {
         
         // 5. XML files manifest (content.opf)
         updateProgressState(75, 'Tạo các tệp tin cấu hình...');
+        await sleep(50); // Yield to render progress
         
         let manifestItems = `
         <item id="style" href="Styles/style.css" media-type="text/css" />
@@ -731,6 +752,7 @@ p {
         
         // 7. Generate zip archive & download
         updateProgressState(85, 'Đang mã hóa ZIP và chuẩn bị tải xuống...');
+        await sleep(50); // Yield to render progress
         
         const epubBlob = await zip.generateAsync({ type: "blob" }, (metadata) => {
             // Keep status update smooth between 85% and 100%
@@ -740,6 +762,7 @@ p {
         
         // 8. Update UI to Success State
         updateProgressState(100, 'Đã hoàn thành!');
+        await sleep(50); // Yield to render progress
 
         const cleanName = sanitizeFilename(title) || 'truyen_epub';
         const filename = `${cleanName}.epub`;
@@ -779,6 +802,10 @@ p {
         console.error(err);
         hideProgress();
         alert('Đã xảy ra lỗi trong quá trình tạo file EPUB: ' + err.message);
+    } finally {
+        // Restore button state
+        btnGenerate.disabled = false;
+        btnGenerate.innerHTML = originalBtnHtml;
     }
 });
 
