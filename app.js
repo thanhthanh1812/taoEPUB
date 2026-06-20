@@ -110,8 +110,8 @@ function parseContent(rawText) {
     let currentChapter = null;
     const preface = [];
     
-    // Pattern to match "Chương" at the start of the line, possibly with whitespace
-    const chapterRegex = /^\s*Chương\s+/i;
+    // Pattern to match "Chương" followed by a number (digits, roman numerals, or Vietnamese written numbers)
+    const chapterRegex = /^\s*Chương\s+(?:\d+|[ivxlcdm]+|không|một|hai|ba|bốn|tư|năm|sáu|bảy|tám|chín|mười|trăm|nghìn|vạn)\b/i;
     
     for (let line of lines) {
         const trimmedLine = line.trim();
