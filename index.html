@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPUB Forge - Trình Tạo File EPUB Trực Tuyến Premium</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- JSZip Library (Client-side ZIP creation) -->
+    <script src="jszip.min.js"></script>
+</head>
+<body>
+    <!-- Background glowing visual elements -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                <h1>EPUB <span>Forge</span></h1>
+            </div>
+            <p class="tagline">Tạo file EPUB tinh tế và chuẩn hóa hoàn toàn trực tiếp trên trình duyệt</p>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="workspace-grid">
+            
+            <!-- Left Column: Book Details -->
+            <section class="panel book-details-panel">
+                <div class="panel-header">
+                    <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                    <h2>Thông tin tác phẩm</h2>
+                </div>
+                
+                <div class="input-group">
+                    <label for="book-title">Tên truyện <span class="required">*</span></label>
+                    <input type="text" id="book-title" placeholder="Nhập tên tác phẩm..." required autocomplete="off">
+                </div>
+
+                <div class="input-group">
+                    <label for="book-author">Tác giả</label>
+                    <input type="text" id="book-author" placeholder="Nhập tên tác giả (Mặc định: Ẩn Danh)..." autocomplete="off">
+                </div>
+
+                <div class="input-group">
+                    <label>Bìa truyện (Kéo thả hoặc Click chọn)</label>
+                    <div class="cover-uploader" id="cover-dropzone">
+                        <input type="file" id="cover-input" accept="image/jpeg,image/png,image/webp" style="display: none;">
+                        <div class="uploader-content" id="uploader-prompt">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            <p class="upload-text">Kéo thả ảnh bìa hoặc <span>chọn từ máy</span></p>
+                            <p class="upload-hint">Hỗ trợ JPG, PNG, WEBP. Nếu trống, hệ thống sẽ tự thiết kế bìa gradient nghệ thuật.</p>
+                        </div>
+                        <div class="cover-preview-container" id="cover-preview-wrapper" style="display: none;">
+                            <img id="cover-preview-img" src="" alt="Bìa truyện preview">
+                            <button type="button" class="btn-remove-cover" id="btn-remove-cover" title="Xóa ảnh bìa">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="book-synopsis">Văn án / Tóm tắt nội dung</label>
+                    <textarea id="book-synopsis" placeholder="Nhập lời mở đầu hoặc tóm tắt truyện..."></textarea>
+                </div>
+            </section>
+
+            <!-- Right Column: Content Area -->
+            <section class="panel content-panel">
+                <div class="panel-header">
+                    <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="21" y1="10" x2="7" y2="10"></line>
+                        <line x1="21" y1="6" x2="3" y2="6"></line>
+                        <line x1="21" y1="14" x2="3" y2="14"></line>
+                        <line x1="21" y1="18" x2="7" y2="18"></line>
+                    </svg>
+                    <h2>Nội dung tác phẩm</h2>
+                </div>
+
+                <div class="input-group content-input-group">
+                    <label for="book-content" class="label-with-badge">
+                        <span>Nhập toàn bộ nội dung <span class="required">*</span></span>
+                        <span class="badge" id="char-counter">0 ký tự</span>
+                    </label>
+                    <textarea id="book-content" placeholder="Dán nội dung truyện vào đây... 
+
+Định dạng nhận diện chương:
+Các dòng bắt đầu bằng chữ 'Chương ...' sẽ tự động tách làm chương mới.
+Ví dụ:
+Chương 1: Khởi đầu mới
+Nội dung chương 1 ở đây...
+
+Chương 2: Sóng gió nổi lên
+Nội dung chương 2 ở đây..."></textarea>
+                </div>
+
+                <!-- Live chapter recognition block -->
+                <div class="chapter-preview-section">
+                    <div class="preview-header">
+                        <h3>Mục lục nhận diện tự động</h3>
+                        <span class="badge badge-accent" id="chapter-counter">0 chương</span>
+                    </div>
+                    <div class="chapters-list-empty" id="chapters-list-empty">
+                        Chưa phát hiện chương nào. Hãy nhập nội dung truyện có chứa các dòng dạng "Chương..." ở ô phía trên.
+                    </div>
+                    <ul class="chapters-list" id="chapters-list" style="display: none;">
+                        <!-- Dynamically filled -->
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer / Action Area -->
+        <footer class="app-footer-actions">
+            <button type="button" class="btn-generate-epub" id="btn-generate">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Tạo file EPUB ngay</span>
+            </button>
+        </footer>
+    </div>
+
+    <!-- Generation Modal Overlay -->
+    <div class="modal-overlay" id="progress-modal" style="display: none;">
+        <div class="modal-card animate-scale-up">
+            <div class="modal-spinner">
+                <div class="double-bounce1"></div>
+                <div class="double-bounce2"></div>
+            </div>
+            <h3 id="modal-title">Đang đóng gói file EPUB...</h3>
+            <p id="modal-status-text" class="status-msg">Đang khởi tạo cấu trúc dữ liệu...</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+            <div class="progress-percent" id="progress-percent">0%</div>
+
+            <!-- Success Download Area (Hidden by default) -->
+            <div id="modal-success-area" style="display: none; margin-top: 0.5rem; width: 100%; flex-direction: column; gap: 0.75rem; align-items: center;">
+                <a id="btn-download-link" href="#" class="btn-download-success">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 1.2rem; height: 1.2rem;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Tải xuống file EPUB</span>
+                </a>
+                <button type="button" id="btn-close-modal" class="btn-close-modal-style">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden canvas for cover generation -->
+    <canvas id="cover-canvas" width="600" height="800" style="display: none;"></canvas>
+
+    <!-- Main logic -->
+    <script src="app.js"></script>
+</body>
+</html>
